@@ -12,12 +12,13 @@ func ping(w http.ResponseWriter, r *http.Request) {
 }
 
 func runServer() {
-	addr := ":7171"
+	addr := ":7181"
 	http.HandleFunc("/ping", ping)
+	http.HandleFunc("/search", spider.GetData)
 	log.Println("listening on", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
 func main() {
-	spider.Phase()
+	runServer()
 }
