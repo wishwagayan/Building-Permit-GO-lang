@@ -1,4 +1,4 @@
-package main
+package spider
 
 import (
 	"fmt"
@@ -6,7 +6,8 @@ import (
 	"github.com/gocolly/colly"
 )
 
-func main() {
+func Phase() {
+
 	c := colly.NewCollector()
 
 	// Find and visit all links
