@@ -43,18 +43,33 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 		link := e.Request.AbsoluteURL(e.Attr("href"))
 		if link != "" {
 			response = append(response, link)
+			log.Println("adding..."+link)
 		}
 		// visit url
 		collector.Visit("http://go-colly.org")
 
-		// parse our response slice into json Format
-		b, err := json.Marshal(response)
-		if err != nil {
-			log.Println("failed to serilize response", err)
-			return
-		}
-		// add some header and write the body for our endpoint
-		w.Header().Add("Content-Type", "application/json")
-		w.Write(b)
+
 	})
+
+
+	//handeling errors
+	collector.OnError(func(response *colly.Response, err error) {
+		log.Println("error is %v",err)
+	})
+
+	// parse our response slice into json Format
+	b, err := json.Marshal(response)
+	if err != nil {
+		log.Println("failed to serilize response", err)
+		return
+	}
+	// add some header and write the body for our endpoint
+	w.Header().Add("Content-Type", "application/json")
+	w.Write(b)
+	collector.Visit(URL)
+
+
+
+
+
 }
