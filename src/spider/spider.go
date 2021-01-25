@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gocolly/colly"
 )
@@ -20,18 +21,14 @@ import (
 // 	c.OnRequest(func(r *colly.Request) {
 // 		fmt.Println("Visiting", r.URL)
 // 	})
-
-// 	c.Visit("http://go-colly.org")
-// }
+var (
+	// 	c.Visit("http://go-colly.org")
+	// }
+	count = 0
+	url string = "https://permitsearch.jeffco.us/index.cfm?fuseaction=PropertySearchFormBldg"
+)
 
 func GetData(w http.ResponseWriter, r *http.Request) {
-	//verify the param "URL" Exists
-	URL := r.URL.Query().Get("url")
-	if URL == "" {
-		log.Println("missing URL Argument")
-		return
-	}
-	log.Println("visiting", URL)
 
 	//Ceating new Data Collector
 	collector := colly.NewCollector()
@@ -39,18 +36,15 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	//slices to store the data
 	var response []string
 
-	collector.OnHTML("a[href]", func(e *colly.HTMLElement) {
-		link := e.Request.AbsoluteURL(e.Attr("href"))
-		if link != "" {
-			response = append(response, link)
-			log.Println("adding..."+link)
+	collector.OnHTML("form[name]", func(e *colly.HTMLElement) {
+		name := e.Attr("name")
+		if strings.Contains(name, "CFForm_1") {
+			err := collector.Post(url, map[string]string{"HouseNum": "admin", "password": "admin"})
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
-		// visit url
-		collector.Visit("http://go-colly.org")
-
-
 	})
-
 
 	//handeling errors
 	collector.OnError(func(response *colly.Response, err error) {
@@ -66,7 +60,9 @@ func GetData(w http.ResponseWriter, r *http.Request) {
 	// add some header and write the body for our endpoint
 	w.Header().Add("Content-Type", "application/json")
 	w.Write(b)
-	collector.Visit(URL)
+	// visit url
+	collector.Visit(url)
+
 
 
 

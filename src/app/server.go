@@ -20,5 +20,10 @@ func runServer() {
 }
 
 func main() {
-	runServer()
+	//runServer()
+	addr := ":7181"
+	http.HandleFunc("/ping", ping)
+	http.HandleFunc("/search", spider.GetData)
+	log.Println("listening on", addr)
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
